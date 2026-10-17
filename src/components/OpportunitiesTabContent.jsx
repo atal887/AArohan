@@ -422,7 +422,6 @@ export default function OpportunitiesTabContent({
   // ================= VIEW: SCHOLARSHIP DETAIL =================
   if (viewState === 'scholarshipDetail' && selectedScholarship) {
     const schStatus = getScholarshipStatus(selectedScholarship.id);
-    const isSaved = savedScholarshipIds.includes(selectedScholarship.id);
 
     return (
       <div className="space-y-4 animate-fadeIn pb-12">
@@ -432,100 +431,93 @@ export default function OpportunitiesTabContent({
             setViewState('list');
             if (window.speechSynthesis) window.speechSynthesis.cancel();
           }}
-          className="flex items-center gap-1.5 text-xs font-bold text-stone-600 bg-white border border-stone-200 px-3 py-1.5 rounded-xl shadow-2xs hover:bg-stone-50 active:scale-95 transition"
+          className="flex items-center gap-1.5 text-xs font-bold text-stone-700 bg-white border border-stone-200 px-3 py-1.5 rounded-lg shadow-2xs hover:bg-stone-50 active:scale-95 transition cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>← वापस छात्रवृत्तियों पर जाएँ</span>
+          <ArrowLeft className="w-4 h-4 text-stone-600" />
+          <span>← वापस छात्रवृत्तियाँ</span>
         </button>
 
-        {/* Scholarship Header */}
-        <div className="bg-gradient-to-r from-indigo-800 via-blue-800 to-indigo-900 text-white p-5 rounded-3xl shadow-lg shadow-indigo-900/20 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black bg-white/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              {selectedScholarship.category}
-            </span>
-            <span className="text-[11px] font-bold text-indigo-200">
-              {selectedScholarship.targetAudience}
-            </span>
-          </div>
+        {/* 1. छात्रवृत्ति का नाम & मुख्य लाभ */}
+        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs space-y-2">
+          <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
+            {selectedScholarship.category}
+          </span>
+          <h2 className="text-base font-black text-stone-900 leading-snug">
+            {selectedScholarship.title}
+          </h2>
 
-          <h2 className="text-xl font-black">{selectedScholarship.title}</h2>
-
-          <div className="pt-2 border-t border-white/20">
-            <span className="text-[10px] text-indigo-200 block">मुख्य लाभ:</span>
-            <span className="text-base font-black text-amber-300">
+          <div className="pt-2 border-t border-stone-100 flex items-baseline justify-between">
+            <span className="text-xs text-stone-500 font-medium">लाभ:</span>
+            <span className="text-sm font-black text-orange-900 bg-orange-50 px-2.5 py-0.5 rounded">
               {selectedScholarship.mainBenefit}
             </span>
           </div>
         </div>
 
-        {/* Why Shown to Student */}
-        <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-200 space-y-1">
-          <span className="text-[10px] font-black text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-md inline-block uppercase">
-            आपके लिए क्यों दिखाई जा रही है?
-          </span>
-          <p className="text-xs text-indigo-950 font-bold leading-relaxed">
-            "{selectedScholarship.whyShown}"
+        {/* 2. यह आपके लिए क्यों दिखाई जा रही है */}
+        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs space-y-1">
+          <h3 className="text-xs font-bold text-stone-500">
+            यह आपके लिए क्यों दिखाई जा रही है
+          </h3>
+          <p className="text-xs text-stone-800 font-medium leading-relaxed">
+            {selectedScholarship.whyShown}
           </p>
         </div>
 
-        {/* Benefits List */}
-        <div className="bg-white rounded-3xl p-5 border-2 border-stone-200 shadow-xs space-y-3">
-          <h3 className="text-sm font-black text-stone-900 flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-indigo-600" />
-            <span>मुख्य लाभ</span>
+        {/* 3. लाभ */}
+        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs space-y-2">
+          <h3 className="text-xs font-bold text-stone-500">
+            लाभ
           </h3>
-          <div className="space-y-2">
+          <ul className="space-y-1.5 text-xs text-stone-800">
             {selectedScholarship.benefitsList.map((benefit, i) => (
-              <div key={i} className="flex items-start gap-2 text-xs text-stone-700">
-                <span className="text-indigo-600 font-bold">•</span>
-                <span className="font-medium">{benefit}</span>
-              </div>
+              <li key={i} className="flex items-start gap-2">
+                <span className="text-orange-700 font-bold">•</span>
+                <span className="leading-relaxed">{benefit}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
-        {/* Eligibility Details */}
-        <div className="bg-white rounded-3xl p-5 border-2 border-stone-200 shadow-xs space-y-3">
-          <h3 className="text-sm font-black text-stone-900 flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>पात्रता की शर्तें</span>
+        {/* 4. संभावित पात्रता */}
+        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs space-y-2">
+          <h3 className="text-xs font-bold text-stone-500">
+            संभावित पात्रता
           </h3>
-          <div className="space-y-2">
+          <ul className="space-y-1.5 text-xs text-stone-800">
             {selectedScholarship.eligibilityDetails.map((el, i) => (
-              <div key={i} className="flex items-start gap-2 text-xs text-stone-700">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <span className="font-medium">{el}</span>
-              </div>
+              <li key={i} className="flex items-start gap-2">
+                <span className="text-emerald-700 font-bold">✓</span>
+                <span className="leading-relaxed">{el}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
-        {/* Required Documents */}
-        <div className="bg-white rounded-3xl p-5 border-2 border-stone-200 shadow-xs space-y-3">
-          <h3 className="text-sm font-black text-stone-900 flex items-center gap-1.5">
-            <FileText className="w-4 h-4 text-blue-600" />
-            <span>आवश्यक दस्तावेज़</span>
+        {/* 5. आवश्यक दस्तावेज़ */}
+        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs space-y-2">
+          <h3 className="text-xs font-bold text-stone-500">
+            आवश्यक दस्तावेज़
           </h3>
-          <div className="space-y-2">
+          <ul className="space-y-1 text-xs text-stone-700 pl-4 list-disc">
             {selectedScholarship.requiredDocuments.map((doc, i) => (
-              <div key={i} className="p-2.5 bg-stone-50 rounded-xl border border-stone-200 text-xs text-stone-800 flex items-center justify-between">
-                <span>{doc}</span>
-                <span className="text-[10px] text-stone-500 font-semibold">तैयार रखें</span>
-              </div>
+              <li key={i} className="leading-relaxed">
+                {doc}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
-        {/* Status Tracker: 5 steps */}
-        <div className="bg-white rounded-3xl p-5 border-2 border-indigo-200 shadow-xs space-y-3">
+        {/* 6. आवेदन की स्थिति - Simple Vertical Progress Tracker */}
+        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs space-y-3">
           <div className="flex items-center justify-between border-b border-stone-100 pb-2">
-            <h3 className="text-sm font-black text-stone-900">आवेदन की स्थिति</h3>
-            <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+            <h3 className="text-xs font-bold text-stone-500">आवेदन की स्थिति</h3>
+            <span className="text-xs font-bold text-stone-900 bg-stone-100 px-2.5 py-0.5 rounded">
               {SCHOLARSHIP_APPLICATION_STEPS[schStatus.statusIndex]?.label}
             </span>
           </div>
 
+          {/* Vertical Progress Tracker */}
           <div className="space-y-2">
             {SCHOLARSHIP_APPLICATION_STEPS.map((step, idx) => {
               const isPassed = idx < schStatus.statusIndex;
@@ -534,40 +526,39 @@ export default function OpportunitiesTabContent({
               return (
                 <div
                   key={step.id}
-                  className={`p-2.5 rounded-xl border flex items-center gap-3 transition ${
+                  className={`p-2.5 rounded-lg border text-xs flex items-center gap-3 transition ${
                     isCurrent
-                      ? 'bg-indigo-50 border-indigo-300'
+                      ? 'bg-stone-50 border-stone-900 text-stone-900 font-bold'
                       : isPassed
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                      : 'bg-stone-50 border-stone-200 opacity-60'
+                      ? 'bg-stone-50/60 border-stone-200 text-stone-700'
+                      : 'border-transparent text-stone-400'
                   }`}
                 >
                   <div
-                    className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 ${
+                    className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0 ${
                       isPassed
-                        ? 'bg-emerald-600 text-white'
+                        ? 'bg-stone-800 text-white'
                         : isCurrent
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-stone-200 text-stone-600'
+                        ? 'bg-orange-700 text-white'
+                        : 'bg-stone-200 text-stone-500'
                     }`}
                   >
                     {isPassed ? '✓' : idx + 1}
                   </div>
-                  <div>
-                    <div className="text-xs font-black">{step.label}</div>
-                    <div className="text-[10px] text-stone-500 font-medium">{step.desc}</div>
+                  <div className="flex-1">
+                    <span className="block font-semibold">{step.label}</span>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Action Buttons inside tracker */}
+          {/* Large Bottom Action Button */}
           <div className="pt-2">
             {schStatus.statusIndex === 0 && (
               <button
                 onClick={() => handleStartScholarshipApplication(selectedScholarship.id)}
-                className="w-full py-3 rounded-2xl bg-indigo-700 text-white font-black text-xs shadow-md hover:bg-indigo-800 active:scale-95 transition"
+                className="w-full py-3.5 px-4 rounded-xl bg-stone-900 text-white font-bold text-xs hover:bg-black active:scale-95 transition shadow-2xs cursor-pointer"
               >
                 आवेदन शुरू करें
               </button>
@@ -576,33 +567,18 @@ export default function OpportunitiesTabContent({
             {schStatus.statusIndex === 1 && (
               <button
                 onClick={() => handleSubmitScholarshipApplication(selectedScholarship.id)}
-                className="w-full py-3 rounded-2xl bg-emerald-600 text-white font-black text-xs shadow-md hover:bg-emerald-700 active:scale-95 transition"
+                className="w-full py-3.5 px-4 rounded-xl bg-orange-700 text-white font-bold text-xs hover:bg-orange-800 active:scale-95 transition shadow-2xs cursor-pointer"
               >
-                दस्तावेज़ की पुष्टि करें एवं आवेदन जमा करें
+                आवेदन जमा करें
               </button>
             )}
 
             {schStatus.statusIndex >= 2 && (
-              <div className="p-3 bg-emerald-100 text-emerald-900 rounded-xl text-center text-xs font-bold">
-                आपका आवेदन सफलतापूर्वक जमा हो चुका है और सत्यापन प्रक्रिया में है।
+              <div className="p-3 bg-stone-50 border border-stone-200 text-stone-800 rounded-xl text-center text-xs font-semibold">
+                आवेदन जमा हो चुका है। सत्यापन प्रक्रिया जारी है।
               </div>
             )}
           </div>
-        </div>
-
-        {/* Save button */}
-        <div className="pt-2">
-          <button
-            onClick={() => handleToggleSaveScholarship(selectedScholarship.id)}
-            className={`w-full py-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 border transition ${
-              isSaved
-                ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
-            }`}
-          >
-            {isSaved ? <BookmarkCheck className="w-4 h-4 text-emerald-700" /> : <Bookmark className="w-4 h-4" />}
-            <span>{isSaved ? 'यह छात्रवृत्ति सहेजी गई है' : 'छात्रवृत्ति सहेजें'}</span>
-          </button>
         </div>
       </div>
     );
@@ -796,85 +772,63 @@ export default function OpportunitiesTabContent({
 
       {/* ================= TAB 2: छात्रवृत्तियाँ ================= */}
       {subTab === 'scholarships' && (
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-base font-black text-stone-900">
-              आपके लिए छात्रवृत्तियाँ
+        <div className="space-y-3">
+          {/* Mobile Header */}
+          <div className="px-1">
+            <h3 className="text-base font-black text-stone-900 tracking-tight">
+              छात्रवृत्तियाँ
             </h3>
             <p className="text-xs text-stone-500 font-medium">
-              आपकी शिक्षा और प्रोफ़ाइल के आधार पर चुनी गई छात्रवृत्तियाँ
+              आपकी पढ़ाई के लिए संभावित अवसर
             </p>
           </div>
 
-          <div className="space-y-3.5">
+          {/* Full-width vertical cards, one card per row */}
+          <div className="space-y-3">
             {HARDCODED_SCHOLARSHIPS.map((sch) => {
-              const isSaved = savedScholarshipIds.includes(sch.id);
               const schStatus = getScholarshipStatus(sch.id);
 
               return (
                 <div
                   key={sch.id}
-                  className="bg-white rounded-3xl p-5 border-2 border-stone-200/90 shadow-xs hover:border-indigo-300 transition-all space-y-3"
+                  className="bg-white rounded-xl p-4 border border-stone-200 shadow-2xs hover:border-stone-300 transition-all space-y-2.5"
                 >
-                  {/* Badge & Title */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="text-[10px] font-black bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-md inline-block mb-1">
-                        संभावित रूप से उपयुक्त
-                      </span>
-                      <h4 className="font-black text-base text-stone-900 leading-snug">
-                        {sch.title}
-                      </h4>
-                      <p className="text-xs text-stone-500 font-semibold">{sch.targetAudience}</p>
-                    </div>
+                  {/* Scholarship Name */}
+                  <h4 className="font-bold text-sm text-stone-900 leading-snug">
+                    {sch.title}
+                  </h4>
 
-                    <span className="text-xs font-black text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full shrink-0">
+                  {/* किसके लिए */}
+                  <div className="text-xs text-stone-600 flex items-start gap-1">
+                    <span className="text-stone-400 font-medium shrink-0">किसके लिए:</span>
+                    <span className="font-medium text-stone-700">{sch.targetAudience}</span>
+                  </div>
+
+                  {/* लाभ */}
+                  <div className="text-xs flex items-baseline gap-1">
+                    <span className="text-stone-400 font-medium shrink-0">लाभ:</span>
+                    <span className="font-bold text-orange-900 bg-orange-50 px-2 py-0.5 rounded">
                       {sch.mainBenefit}
                     </span>
                   </div>
 
-                  {/* Eligibility Summary */}
-                  <p className="text-xs text-stone-700 font-medium leading-relaxed">
-                    <strong>पात्रता सार:</strong> {sch.eligibilitySummary}
-                  </p>
-
-                  {/* Application Status Badge */}
-                  <div className="flex items-center justify-between text-xs pt-1">
-                    <span className="text-stone-500">आवेदन की स्थिति:</span>
-                    <span
-                      className={`font-black px-2.5 py-0.5 rounded-full text-[11px] ${
-                        schStatus.statusIndex >= 2
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-amber-100 text-amber-900'
-                      }`}
-                    >
-                      {SCHOLARSHIP_APPLICATION_STEPS[schStatus.statusIndex]?.label}
-                    </span>
-                  </div>
-
-                  {/* Card Bottom Actions */}
+                  {/* आवेदन की स्थिति & विवरण देखें */}
                   <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => handleToggleSaveScholarship(sch.id)}
-                      className="p-2 rounded-xl text-stone-500 hover:text-indigo-700 hover:bg-stone-100 transition"
-                      title="सहेजें"
-                    >
-                      {isSaved ? (
-                        <BookmarkCheck className="w-4 h-4 text-indigo-600" />
-                      ) : (
-                        <Bookmark className="w-4 h-4" />
-                      )}
-                    </button>
+                    <div className="text-[11px] text-stone-500 flex items-center gap-1.5">
+                      <span>स्थिति:</span>
+                      <span className="font-semibold text-stone-800">
+                        {SCHOLARSHIP_APPLICATION_STEPS[schStatus.statusIndex]?.label}
+                      </span>
+                    </div>
 
                     <button
                       onClick={() => {
                         setSelectedScholarship(sch);
                         setViewState('scholarshipDetail');
                       }}
-                      className="flex-1 py-2 px-4 rounded-xl bg-indigo-700 text-white font-black text-xs shadow-xs hover:bg-indigo-800 active:scale-95 transition flex items-center justify-center gap-1.5"
+                      className="px-3.5 py-1.5 rounded-lg bg-stone-900 text-white font-bold text-xs hover:bg-black active:scale-95 transition cursor-pointer"
                     >
-                      <span>विवरण देखें</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      विवरण देखें
                     </button>
                   </div>
                 </div>

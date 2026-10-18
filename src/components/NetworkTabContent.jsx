@@ -340,77 +340,71 @@ export default function NetworkTabContent({ profile, selectedDomain, navigateTo 
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12">
-      {/* ================= 1. NETWORK HOME HEADER ================= */}
-      <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white p-5 rounded-3xl shadow-lg shadow-blue-700/20">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-black bg-white/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-            सीख एवं अनुभव साझा मंच
-          </span>
-          <span className="text-xs text-blue-200 font-bold flex items-center gap-1">
-            <Globe2 className="w-3.5 h-3.5" />
-            <span>अखिल भारतीय</span>
-          </span>
+    <div className="space-y-5 animate-fadeIn pb-12">
+      {/* ================= 1. NETWORK HOME HEADER - CALM & WELCOMING ================= */}
+      <div className="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs">
+        <div className="flex items-center justify-between text-xs text-stone-500 mb-1.5">
+          <span className="font-semibold text-stone-700">सीख एवं अनुभव नेटवर्क</span>
+          <span className="text-[11px] text-stone-400">अखिल भारतीय सहकर्मी</span>
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-black leading-tight">
+        <h2 className="text-xl sm:text-2xl font-black text-stone-900 leading-snug tracking-tight">
           राष्ट्रीय सीख एवं अनुभव नेटवर्क
         </h2>
 
-        <p className="text-xs text-blue-100 mt-1 font-medium leading-relaxed">
-          दूसरे विद्यार्थियों के अनुभवों से सीखें
+        <p className="text-xs text-stone-500 mt-1 font-normal">
+          दूसरे विद्यार्थियों के वास्तविक अनुभवों से सीखें और आगे बढ़ें
         </p>
 
-        {/* Personalized Domain Tag */}
-        <div className="mt-4 pt-3 border-t border-white/20 flex items-center justify-between">
+        {/* Action & Domain Bar */}
+        <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
           <div className="text-xs">
-            <span className="text-blue-200 text-[11px] block">आपके क्षेत्र से जुड़े अनुभव:</span>
-            <span className="font-black text-white text-sm">{domainName}</span>
+            <span className="text-[11px] text-stone-400 block font-normal">चयनित क्षेत्र:</span>
+            <span className="font-bold text-stone-800 text-xs">{domainName}</span>
           </div>
 
           <button
             onClick={() => setIsShareModalOpen(true)}
-            className="px-3.5 py-2 rounded-2xl bg-white text-blue-900 font-black text-xs shadow-md hover:bg-blue-50 active:scale-95 transition flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-stone-900 text-white font-bold text-xs hover:bg-black active:scale-95 transition flex items-center gap-1.5 shadow-xs"
           >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>अपना अनुभव साझा करें</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>अनुभव साझा करें</span>
           </button>
         </div>
       </div>
 
-      {/* ================= 2. SAATHI PODS HIGHLIGHT (साथी समूह) ================= */}
-      <div className="bg-gradient-to-br from-purple-50 via-white to-indigo-50 rounded-3xl p-5 border-2 border-purple-200/90 shadow-md">
-        <div className="flex items-start justify-between mb-2">
+      {/* ================= 2. SAATHI PODS HIGHLIGHT - WARM & CLUTTER-FREE ================= */}
+      <div className="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-xs space-y-3">
+        <div className="flex items-start justify-between gap-2">
           <div>
-            <span className="text-[10px] font-black text-purple-900 bg-purple-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              साथी समूह
-            </span>
-            <h3 className="text-base font-black text-stone-900 mt-1">
-              आपके जैसे लक्ष्य वाले साथी
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="text-[11px] font-bold text-stone-700 uppercase tracking-wider">
+                आपका साथी समूह (Peer Pod)
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-stone-900">
+              {SAATHI_POD_DATA.podTitle}
             </h3>
-            <p className="text-xs text-purple-800 font-semibold">
-              {SAATHI_POD_DATA.podTitle} • {SAATHI_POD_DATA.totalLearners} सुरक्षित साथी
+            <p className="text-[11px] text-stone-500 mt-0.5 font-normal">
+              4 सत्यापित साथी • {SAATHI_POD_DATA.weeklyGoal}
             </p>
           </div>
 
-          <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-black shadow-xs">
-            <Users className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-full bg-stone-100 text-stone-600 flex items-center justify-center shrink-0">
+            <Users className="w-4 h-4" />
           </div>
         </div>
 
-        <p className="text-xs text-stone-600 mb-3 leading-relaxed font-medium">
-          {SAATHI_POD_DATA.matchReason}
-        </p>
-
-        {/* 4 Learner Avatars / Location Badges */}
-        <div className="grid grid-cols-4 gap-2 my-3 text-center">
+        {/* 4 Learner Avatars - Simple Single-Line Pills */}
+        <div className="grid grid-cols-4 gap-2 pt-1 text-center">
           {SAATHI_POD_DATA.members.map((m) => (
-            <div key={m.id} className="p-2 bg-white rounded-2xl border border-purple-100 shadow-2xs">
-              <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-800 mx-auto flex items-center justify-center font-black text-xs mb-1">
+            <div key={m.id} className="py-2 px-1 bg-stone-50 rounded-2xl border border-stone-100">
+              <div className="w-7 h-7 rounded-full bg-stone-200 text-stone-800 mx-auto flex items-center justify-center font-bold text-xs mb-1">
                 {m.name.charAt(0)}
               </div>
-              <div className="font-bold text-[11px] text-stone-900 truncate">{m.name}</div>
-              <div className="text-[10px] text-stone-500 truncate">{m.location}</div>
+              <div className="font-bold text-[11px] text-stone-800 truncate">{m.name}</div>
+              <div className="text-[10px] text-stone-400 truncate">{m.location}</div>
             </div>
           ))}
         </div>
@@ -418,103 +412,84 @@ export default function NetworkTabContent({ profile, selectedDomain, navigateTo 
         {/* Pod Action Button */}
         <button
           onClick={() => setIsPodModalOpen(true)}
-          className="w-full py-3 px-4 rounded-2xl bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-700/20 hover:bg-purple-800 active:scale-95 transition flex items-center justify-center gap-2"
+          className="w-full py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs active:scale-95 transition flex items-center justify-center gap-1.5"
         >
-          <span>साथी समूह देखें एवं साझा लक्ष्य पूरा करें</span>
-          <ArrowRight className="w-4 h-4" />
+          <span>साथी समूह खोलें (संवाद, भ्रमण व लक्ष्य)</span>
+          <ArrowRight className="w-3.5 h-3.5 text-stone-500" />
         </button>
       </div>
 
-      {/* ================= 3. TOP NAVIGATION / FILTERS & SEARCH ================= */}
+      {/* ================= 3. SEARCH & CLEAN FILTER CHIPS ================= */}
       <div className="space-y-3">
-        {/* Search Bar & Popular Topics */}
-        <div className="bg-white p-3.5 rounded-3xl border border-stone-200 shadow-xs space-y-2.5">
-          <div className="relative flex items-center">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3" />
-            <input
-              type="text"
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-              placeholder="क्या खोज रहे हैं? (उदा. गोदाम, डिलीवरी, परिवहन)"
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-semibold text-stone-800 focus:outline-none focus:border-blue-500"
-            />
-            {searchKeyword && (
-              <button
-                onClick={() => setSearchKeyword('')}
-                className="absolute right-3 text-xs text-stone-400 font-bold hover:text-stone-700"
-              >
-                हटाएँ
-              </button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-            <span className="text-[11px] font-bold text-stone-500 shrink-0">लोकप्रिय विषय:</span>
-            {popularTopics.map((topic) => (
-              <button
-                key={topic}
-                onClick={() => setSearchKeyword(topic === searchKeyword ? '' : topic)}
-                className={`px-2.5 py-1 rounded-xl text-[11px] font-bold shrink-0 transition ${
-                  searchKeyword === topic
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                }`}
-              >
-                {topic}
-              </button>
-            ))}
-          </div>
+        {/* Search Bar - Clean & Borderless Feel */}
+        <div className="relative flex items-center">
+          <Search className="w-4 h-4 text-stone-400 absolute left-3.5" />
+          <input
+            type="text"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            placeholder="अनुभव खोजें (उदा. गोदाम, डिलीवरी, सप्लायर)..."
+            className="w-full pl-10 pr-12 py-2.5 rounded-2xl border border-stone-200/90 bg-white text-xs font-medium text-stone-800 focus:outline-none focus:border-stone-400 shadow-2xs"
+          />
+          {searchKeyword && (
+            <button
+              onClick={() => setSearchKeyword('')}
+              className="absolute right-3.5 text-xs text-stone-400 font-medium hover:text-stone-700"
+            >
+              हटाएँ
+            </button>
+          )}
         </div>
 
-        {/* 5 Filter Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {filterOptions.map((f) => (
-            <button
-              key={f}
-              onClick={() => setSelectedFilter(f)}
-              className={`px-3.5 py-2 rounded-2xl text-xs font-black shrink-0 transition-all ${
-                selectedFilter === f
-                  ? 'bg-blue-700 text-white shadow-md shadow-blue-700/20'
-                  : 'bg-white text-stone-700 border border-stone-200 hover:border-blue-300'
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+        {/* Minimal Filter Pills */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {filterOptions.map((f) => {
+            const isSelected = selectedFilter === f;
+            return (
+              <button
+                key={f}
+                onClick={() => setSelectedFilter(f)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                  isSelected
+                    ? 'bg-stone-900 text-white font-bold'
+                    : 'bg-white text-stone-600 border border-stone-200/80 hover:bg-stone-50'
+                }`}
+              >
+                {f}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* ================= 4. EXPERIENCE CARDS LIST ================= */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-base font-black text-stone-900">
-            {selectedFilter === 'सभी' ? 'आपके लिए चुने गए अनुभव' : selectedFilter}
-          </h3>
-          <span className="text-xs font-bold text-stone-500">
-            {filteredExperiences.length} अनुभव
+      {/* ================= 4. EXPERIENCE FEED (SINGLE-COLUMN FEED ITEMS) ================= */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-xs text-stone-500 px-1">
+          <span className="font-semibold text-stone-800">
+            {selectedFilter === 'सभी' ? 'विद्यार्थी अनुभव' : selectedFilter}
+          </span>
+          <span className="text-stone-400 font-normal">
+            {filteredExperiences.length} सीख
           </span>
         </div>
 
         {filteredExperiences.length === 0 ? (
-          <div className="bg-white rounded-3xl p-6 text-center border border-stone-200 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-stone-100 text-stone-500 flex items-center justify-center mx-auto">
-              <Compass className="w-6 h-6" />
-            </div>
-            <h4 className="text-sm font-bold text-stone-900">
-              अभी इस विषय पर कोई अनुभव नहीं मिला।
+          <div className="bg-white rounded-3xl p-6 text-center border border-stone-200/80 space-y-2.5">
+            <h4 className="text-xs font-bold text-stone-700">
+              इस विषय पर अभी कोई अनुभव नहीं मिला।
             </h4>
             <button
               onClick={() => {
                 setSelectedFilter('सभी');
                 setSearchKeyword('');
               }}
-              className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700"
+              className="px-3.5 py-1.5 rounded-xl bg-stone-900 text-white text-xs font-bold"
             >
-              दूसरे विषय देखें
+              सभी अनुभव देखें
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredExperiences.map((exp) => {
               const isSaved = savedExpIds.includes(exp.id);
               const isTried = triedExpIds.includes(exp.id);
@@ -524,26 +499,25 @@ export default function NetworkTabContent({ profile, selectedDomain, navigateTo 
               return (
                 <div
                   key={exp.id}
-                  className="bg-white rounded-3xl p-5 border-2 border-stone-200/90 shadow-xs hover:border-blue-300 transition-all duration-200 space-y-3"
+                  className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-xs space-y-2.5 transition"
                 >
-                  {/* Author, Location Badge & State Exposure */}
+                  {/* Feed Header: Author, Category & Location */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-2xs">
+                      <div className="w-8 h-8 rounded-full bg-stone-100 text-stone-700 flex items-center justify-center font-bold text-xs shrink-0">
                         {exp.authorName.charAt(0)}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="font-black text-sm text-stone-900">
+                          <span className="font-bold text-xs text-stone-900">
                             {exp.authorName}
-                          </h4>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-900">
+                          </span>
+                          <span className="text-[10px] text-stone-500 font-medium bg-stone-100 px-2 py-0.5 rounded-full">
                             {exp.category}
                           </span>
                         </div>
-                        <p className="text-[11px] text-stone-500 font-medium flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-stone-400" />
-                          <span>{exp.location}</span>
+                        <p className="text-[10px] text-stone-400 font-normal">
+                          {exp.location} • {exp.domain}
                         </p>
                       </div>
                     </div>
@@ -552,106 +526,92 @@ export default function NetworkTabContent({ profile, selectedDomain, navigateTo 
                     <button
                       onClick={() => alert('यह अनुभव समीक्षा के लिए चिह्नित कर दिया गया है।')}
                       title="रिपोर्ट करें"
-                      className="text-stone-400 hover:text-red-600 p-1 rounded-lg"
+                      className="text-stone-300 hover:text-stone-600 p-1 rounded-lg"
                     >
                       <Flag className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
-                  {/* Title & Domain */}
-                  <div>
-                    <h4 className="text-base font-black text-stone-900 leading-snug">
-                      "{exp.title}"
-                    </h4>
-                    <span className="text-[10px] font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md inline-block mt-1">
-                      क्षेत्र: {exp.domain}
-                    </span>
-                  </div>
+                  {/* Title */}
+                  <h4 className="text-sm font-bold text-stone-900 leading-snug">
+                    {exp.title}
+                  </h4>
 
-                  {/* Photograph if available */}
+                  {/* Clean Visual Photograph if Available */}
                   {exp.imageUrl && (
-                    <div className="rounded-2xl overflow-hidden border border-stone-100 max-h-44">
+                    <div className="rounded-2xl overflow-hidden bg-stone-100 aspect-16/9 max-h-48 border border-stone-100">
                       <img
                         src={exp.imageUrl}
                         alt={exp.title}
-                        className="w-full h-44 object-cover"
+                        className="w-full h-full object-cover"
                         loading="lazy"
                       />
                     </div>
                   )}
 
-                  {/* Description (Original or Translated) */}
-                  <p className="text-xs text-stone-700 leading-relaxed font-medium">
+                  {/* Short Experience Description */}
+                  <p className="text-xs text-stone-600 leading-relaxed font-normal">
                     {isTranslated && exp.translatedText
                       ? exp.translatedText
                       : exp.shortDescription}
                   </p>
 
-                  {/* Translation notice if applicable */}
+                  {/* Translation Link if Multi-Language */}
                   {exp.originalLanguage && exp.originalLanguage !== 'हिंदी' && (
-                    <div className="flex items-center justify-between text-[11px] bg-stone-50 p-2 rounded-xl border border-stone-200/70">
-                      <span className="text-stone-500 font-semibold flex items-center gap-1">
-                        <Languages className="w-3 h-3 text-blue-600" />
-                        <span>मूल भाषा: <strong>{exp.originalLanguage}</strong></span>
-                      </span>
+                    <div className="flex items-center justify-between text-[11px] text-stone-500 pt-0.5">
+                      <span>मूल भाषा: {exp.originalLanguage}</span>
                       <button
                         onClick={() => handleToggleTranslate(exp.id)}
-                        className="text-blue-700 font-black hover:underline"
+                        className="text-stone-700 font-semibold underline text-[11px]"
                       >
-                        {isTranslated ? 'मूल भाषा में देखें' : 'हिंदी में अनुवाद करें'}
+                        {isTranslated ? 'मूल भाषा' : 'हिंदी अनुवाद'}
                       </button>
                     </div>
                   )}
 
-                  {/* Voice Button */}
-                  <div className="pt-1">
+                  {/* Action Bar: Voice Listen, Save, Try */}
+                  <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-2">
                     <button
                       onClick={() => handlePlayVoice(exp)}
-                      className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 transition ${
+                      className={`py-1.5 px-3 rounded-xl text-xs font-medium flex items-center gap-1.5 transition ${
                         isPlaying
-                          ? 'bg-red-600 text-white animate-pulse'
-                          : 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200'
+                          ? 'bg-stone-900 text-white animate-pulse'
+                          : 'bg-stone-100 text-stone-800 hover:bg-stone-200'
                       }`}
                     >
-                      <Volume2 className="w-4 h-4" />
-                      <span>{isPlaying ? 'ऑडियो रोकें' : '🔊 सुनें (बोलकर सुनें)'}</span>
-                    </button>
-                  </div>
-
-                  {/* Action Buttons: सहेजें + मैं भी आज़माऊँगा/आज़माऊँगी */}
-                  <div className="pt-2 border-t border-stone-100 flex items-center gap-2">
-                    <button
-                      onClick={() => handleToggleSave(exp.id)}
-                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${
-                        isSaved
-                          ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                          : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                      }`}
-                    >
-                      {isSaved ? (
-                        <>
-                          <BookmarkCheck className="w-3.5 h-3.5 text-emerald-700" />
-                          <span>सहेजा गया ✓</span>
-                        </>
-                      ) : (
-                        <>
-                          <Bookmark className="w-3.5 h-3.5 text-stone-600" />
-                          <span>सहेजें</span>
-                        </>
-                      )}
+                      <Volume2 className="w-3.5 h-3.5" />
+                      <span>{isPlaying ? 'रोकें' : 'सुनें'}</span>
                     </button>
 
-                    <button
-                      onClick={() => handleToggleTry(exp.id)}
-                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${
-                        isTried
-                          ? 'bg-orange-100 text-orange-950 border border-orange-300'
-                          : 'bg-orange-600 text-white hover:bg-orange-700 shadow-xs'
-                      }`}
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>{isTried ? 'सूची में जोड़ा गया ✓' : 'मैं भी आज़माऊँगा/आज़माऊँगी'}</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleToggleSave(exp.id)}
+                        className={`p-2 rounded-xl text-xs transition flex items-center gap-1 ${
+                          isSaved
+                            ? 'text-emerald-700 bg-emerald-50'
+                            : 'text-stone-400 hover:text-stone-700'
+                        }`}
+                        title={isSaved ? 'सहेजा गया' : 'सहेजें'}
+                      >
+                        {isSaved ? (
+                          <BookmarkCheck className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <Bookmark className="w-4 h-4" />
+                        )}
+                      </button>
+
+                      <button
+                        onClick={() => handleToggleTry(exp.id)}
+                        className={`py-1.5 px-3 rounded-xl text-xs font-semibold transition flex items-center gap-1 ${
+                          isTried
+                            ? 'bg-stone-800 text-white'
+                            : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                        }`}
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>{isTried ? 'सक्रिय लक्ष्य ✓' : 'मैं भी आज़माऊँगा'}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -660,32 +620,32 @@ export default function NetworkTabContent({ profile, selectedDomain, navigateTo 
         )}
       </div>
 
-      {/* ================= 5. "मेरी सहेजी गई सीख" (SAVED EXPERIENCES SECTION) ================= */}
+      {/* ================= 5. SAVED EXPERIENCES - COMPACT & CLEAN ================= */}
       {savedExperiencesList.length > 0 && (
-        <div className="bg-white rounded-3xl p-5 border-2 border-stone-200 shadow-xs space-y-3">
+        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-xs space-y-2.5">
           <div className="flex items-center justify-between border-b border-stone-100 pb-2">
-            <h3 className="text-sm font-black text-stone-900 flex items-center gap-1.5">
-              <Bookmark className="w-4 h-4 text-emerald-600" />
-              <span>मेरी सहेजी गई सीख ({savedExperiencesList.length})</span>
-            </h3>
-            <span className="text-[11px] text-stone-500 font-bold">त्वरित पहुंच</span>
+            <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+              <Bookmark className="w-3.5 h-3.5 text-stone-600" />
+              <span>सहेजी गई सीख ({savedExperiencesList.length})</span>
+            </span>
+            <span className="text-[10px] text-stone-400 font-normal">त्वरित सूची</span>
           </div>
 
           <div className="space-y-2">
             {savedExperiencesList.map((item) => (
               <div
                 key={item.id}
-                className="p-3 bg-stone-50 rounded-2xl border border-stone-200 flex items-center justify-between gap-2"
+                className="p-2.5 bg-stone-50 rounded-2xl border border-stone-100 flex items-center justify-between gap-2"
               >
                 <div>
-                  <h5 className="font-bold text-xs text-stone-900 leading-snug">{item.title}</h5>
-                  <p className="text-[10px] text-stone-500">{item.authorName} • {item.location}</p>
+                  <h5 className="font-semibold text-xs text-stone-900 leading-snug">{item.title}</h5>
+                  <p className="text-[10px] text-stone-400">{item.authorName} • {item.location}</p>
                 </div>
                 <button
                   onClick={() => handlePlayVoice(item)}
-                  className="px-2.5 py-1.5 rounded-xl bg-amber-100 text-amber-900 font-bold text-[11px] shrink-0 flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-lg bg-stone-200 text-stone-800 font-medium text-[11px] shrink-0 flex items-center gap-1"
                 >
-                  <Volume2 className="w-3 h-3 text-amber-700" />
+                  <Volume2 className="w-3 h-3 text-stone-600" />
                   <span>सुनें</span>
                 </button>
               </div>
@@ -694,11 +654,11 @@ export default function NetworkTabContent({ profile, selectedDomain, navigateTo 
         </div>
       )}
 
-      {/* ================= 6. SAFETY NOTICE FOOTER ================= */}
-      <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-950 flex items-start gap-2.5">
-        <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-        <p className="leading-relaxed font-medium">
-          <strong>सुरक्षा निर्देश:</strong> यह केवल एक शैक्षणिक सीख मंच है। अपना मोबाइल नंबर, घर का पता या निजी जानकारी कभी भी साझा न करें।
+      {/* ================= 6. MINIMAL SAFETY NOTICE ================= */}
+      <div className="p-3 bg-stone-100 rounded-2xl text-[11px] text-stone-500 leading-normal flex items-start gap-2">
+        <ShieldAlert className="w-3.5 h-3.5 text-stone-400 shrink-0 mt-0.5" />
+        <p>
+          सुरक्षा: यह केवल सहकर्मी अध्ययन नेटवर्क है। निजी संपर्क विवरण कभी साझा न करें।
         </p>
       </div>
 

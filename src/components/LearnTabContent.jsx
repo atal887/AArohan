@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Volume2,
   ChevronLeft,
@@ -17,10 +17,13 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronUp,
-  GraduationCap
+  GraduationCap,
+  Layers,
+  Image as ImageIcon
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SUPPLY_CHAIN_MODULES, DOMAIN_DOUBTS } from '../curriculumData';
+import { LESSON_SLIDECASTS } from '../slidecastData';
 
 export default function LearnTabContent({ profile, selectedDomain }) {
   // State: unlocked modules up to highest completed (1 is open initially)
@@ -31,8 +34,10 @@ export default function LearnTabContent({ profile, selectedDomain }) {
   // Lesson view mode: 'list' (modules view) | 'slidecast' (immersive lesson player)
   const [viewMode, setViewMode] = useState('list');
 
-  // Audio teacher narration state
+  // Synchronized Slidecast State
+  const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [audioProgress, setAudioProgress] = useState(0); // 0 to 100%
 
   // Knowledge check state: null or selected option index
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -46,34 +51,192 @@ export default function LearnTabContent({ profile, selectedDomain }) {
   const activeModule = SUPPLY_CHAIN_MODULES.find((m) => m.moduleId === activeModuleId) || SUPPLY_CHAIN_MODULES[0];
   const activeLesson = activeModule.lessons[activeLessonIdx] || activeModule.lessons[0];
 
-  // Calculate overall course progress (out of 23 lessons)
+  // Get synchronized slidecast data for active lesson
+  const slidecastData = LESSON_SLIDECASTS[activeLesson.lessonId] || {
+    lessonTitle: activeLesson.title,
+    totalDuration: 24,
+    slides: [
+      {
+        slideNumber: 1,
+        tag: "अवधारणा परिचय",
+        heading: activeLesson.title,
+        text: activeLesson.subtitle,
+        imageUrl: activeLesson.imageUrl,
+        imageCaption: activeLesson.imageCaption,
+        audioScript: activeLesson.teacherScript,
+        durationSeconds: 8
+      },
+      {
+        slideNumber: 2,
+        tag: "वास्तविक उदाहरण",
+        heading: activeLesson.title + " का वास्तविक उदाहरण",
+        text: activeLesson.keyPoints?.[0] || activeLesson.subtitle,
+        imageUrl: activeLesson.imageUrl,
+        imageCaption: activeLesson.imageCaption,
+        audioScript: activeLesson.teacherScript,
+        durationSeconds: 8
+      },
+      {
+        slideNumber: 3,
+        tag: "व्यावहारिक अनुप्रयोग",
+        heading: "उद्योग में व्यावहारिक अनुप्रयोग",
+        text: activeLesson.keyPoints?.[1] || activeLesson.subtitle,
+        imageUrl: activeLesson.imageUrl,
+        imageCaption: activeLesson.imageCaption,
+        audioScript: activeLesson.teacherScript,
+        durationSeconds: 8
+      }
+    ]
+  };
+
+  const currentSlide = slidecastData.slides[currentSlideIdx] || slidecastData.slides[0];
+
+  // Calculate overall course progress (out of 24 lessons across 8 modules)
   const totalLessonsInCourse = SUPPLY_CHAIN_MODULES.reduce((acc, m) => acc + m.lessons.length, 0);
   const completedLessonsCount = (unlockedModules.length - 1) * 3 + activeLessonIdx;
   const overallProgressPercent = Math.min(100, Math.round((completedLessonsCount / totalLessonsInCourse) * 100));
 
-  // Audio Playback (Educational Teacher Script)
-  const handleToggleAudio = () => {
+  // Refs for tracking audio playback intervals and slide synchronization
+  const playbackTimerRef = useRef(null);
+  const currentSlideRef = useRef(0);
+  const isPlayingRef = useRef(false);
+
+  useEffect(() => {
+    currentSlideRef.current = currentSlideIdx;
+  }, [currentSlideIdx]);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlayingAudio;
+  }, [isPlayingAudio]);
+
+  // Clean up speech synthesis & timers when switching lesson, module, or leaving slidecast
+  useEffect(() => {
+    return () => {
+      stopSlidecastAudio();
+    };
+  }, [activeLesson.lessonId, viewMode]);
+
+  // Stop slidecast audio & reset interval
+  const stopSlidecastAudio = () => {
     if ('speechSynthesis' in window) {
-      if (isPlayingAudio) {
-        window.speechSynthesis.cancel();
-        setIsPlayingAudio(false);
+      window.speechSynthesis.cancel();
+    }
+    if (playbackTimerRef.current) {
+      clearInterval(playbackTimerRef.current);
+      playbackTimerRef.current = null;
+    }
+    setIsPlayingAudio(false);
+  };
+
+  // Play slide audio segment
+  const speakCurrentSlide = (slideIdx) => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    const slide = slidecastData.slides[slideIdx];
+    if (!slide) return;
+
+    const utterance = new SpeechSynthesisUtterance(slide.audioScript);
+    utterance.lang = 'hi-IN';
+    utterance.rate = 0.95;
+
+    utterance.onend = () => {
+      // Audio for this slide finished. If not on last slide, auto-advance to next slide
+      if (slideIdx < slidecastData.slides.length - 1 && isPlayingRef.current) {
+        const nextSlide = slideIdx + 1;
+        setCurrentSlideIdx(nextSlide);
+        speakCurrentSlide(nextSlide);
       } else {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(activeLesson.teacherScript);
-        utterance.lang = 'hi-IN';
-        utterance.rate = 0.9;
-        utterance.onend = () => setIsPlayingAudio(false);
-        utterance.onerror = () => setIsPlayingAudio(false);
-        window.speechSynthesis.speak(utterance);
-        setIsPlayingAudio(true);
+        // Last slide finished
+        stopSlidecastAudio();
+        setAudioProgress(100);
+      }
+    };
+
+    utterance.onerror = () => {
+      stopSlidecastAudio();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Toggle Play / Pause synchronized slidecast
+  const handleToggleSlidecast = () => {
+    if (isPlayingAudio) {
+      stopSlidecastAudio();
+    } else {
+      setIsPlayingAudio(true);
+      // Start or resume from current slide
+      speakCurrentSlide(currentSlideIdx);
+
+      // Start progress simulation timer
+      if (playbackTimerRef.current) clearInterval(playbackTimerRef.current);
+      playbackTimerRef.current = setInterval(() => {
+        setAudioProgress((prev) => {
+          if (prev >= 100) {
+            return 100;
+          }
+          return Math.min(100, prev + 1.2);
+        });
+      }, 300);
+    }
+  };
+
+  // Manual Slide Navigation (Previous Slide)
+  const handlePrevSlide = () => {
+    if (currentSlideIdx > 0) {
+      const prevIdx = currentSlideIdx - 1;
+      setCurrentSlideIdx(prevIdx);
+      setAudioProgress(Math.round((prevIdx / slidecastData.slides.length) * 100));
+      if (isPlayingAudio) {
+        speakCurrentSlide(prevIdx);
       }
     }
   };
 
+  // Manual Slide Navigation (Next Slide)
+  const handleNextSlide = () => {
+    if (currentSlideIdx < slidecastData.slides.length - 1) {
+      const nextIdx = currentSlideIdx + 1;
+      setCurrentSlideIdx(nextIdx);
+      setAudioProgress(Math.round((nextIdx / slidecastData.slides.length) * 100));
+      if (isPlayingAudio) {
+        speakCurrentSlide(nextIdx);
+      }
+    }
+  };
+
+  // Jump to specific slide index
+  const handleSelectSlide = (idx) => {
+    setCurrentSlideIdx(idx);
+    setAudioProgress(Math.round((idx / slidecastData.slides.length) * 100));
+    if (isPlayingAudio) {
+      speakCurrentSlide(idx);
+    }
+  };
+
+  // Restart Slidecast from beginning
+  const handleRestartSlidecast = () => {
+    stopSlidecastAudio();
+    setCurrentSlideIdx(0);
+    setAudioProgress(0);
+    setTimeout(() => {
+      setIsPlayingAudio(true);
+      speakCurrentSlide(0);
+      if (playbackTimerRef.current) clearInterval(playbackTimerRef.current);
+      playbackTimerRef.current = setInterval(() => {
+        setAudioProgress((prev) => Math.min(100, prev + 1.2));
+      }, 300);
+    }, 150);
+  };
+
   const handleOpenModule = (modId) => {
     if (unlockedModules.includes(modId)) {
+      stopSlidecastAudio();
       setActiveModuleId(modId);
       setActiveLessonIdx(0);
+      setCurrentSlideIdx(0);
+      setAudioProgress(0);
       setSelectedAnswer(null);
       setIsAnswerSubmitted(false);
       setViewMode('slidecast');
@@ -83,8 +246,9 @@ export default function LearnTabContent({ profile, selectedDomain }) {
 
   // Next Lesson / Next Module logic
   const handleNextLesson = () => {
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    setIsPlayingAudio(false);
+    stopSlidecastAudio();
+    setCurrentSlideIdx(0);
+    setAudioProgress(0);
     setSelectedAnswer(null);
     setIsAnswerSubmitted(false);
 
@@ -110,8 +274,9 @@ export default function LearnTabContent({ profile, selectedDomain }) {
   };
 
   const handlePrevLesson = () => {
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    setIsPlayingAudio(false);
+    stopSlidecastAudio();
+    setCurrentSlideIdx(0);
+    setAudioProgress(0);
     setSelectedAnswer(null);
     setIsAnswerSubmitted(false);
 
@@ -320,25 +485,190 @@ export default function LearnTabContent({ profile, selectedDomain }) {
               {activeLesson.subtitle}
             </p>
 
-            {/* Real Photographic Image Display */}
-            <div className="relative rounded-2xl overflow-hidden border border-stone-200 shadow-sm mb-3">
-              <img
-                src={activeLesson.imageUrl}
-                alt={activeLesson.title}
-                className="w-full h-48 object-cover"
-                loading="lazy"
-              />
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 text-white">
-                <p className="text-[11px] font-medium leading-tight text-stone-200">
-                  📷 {activeLesson.imageCaption}
+            {/* ================= SYNCHRONIZED SLIDECAST REEL PLAYER ================= */}
+            <div className="bg-stone-900 rounded-3xl p-4 sm:p-5 text-white shadow-xl border border-stone-800 mb-5">
+              {/* Slidecast Header & Mode Badge */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2.5 w-2.5 relative">
+                    {isPlayingAudio && (
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    )}
+                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isPlayingAudio ? 'bg-orange-500' : 'bg-stone-500'}`}></span>
+                  </span>
+                  <span className="text-xs font-black uppercase tracking-wider text-orange-400 flex items-center gap-1">
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>सक्रिय स्लाइडकास्ट</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-xs font-bold text-stone-300 bg-stone-800 px-2.5 py-1 rounded-full border border-stone-700">
+                  <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+                  <span>स्लाइड {currentSlideIdx + 1} / {slidecastData.slides.length}</span>
+                </div>
+              </div>
+
+              {/* Instagram/Reel-style Progress Segments for Slides */}
+              <div className="grid grid-cols-3 gap-1.5 mb-3.5">
+                {slidecastData.slides.map((s, idx) => {
+                  const isCompleted = idx < currentSlideIdx;
+                  const isCurrent = idx === currentSlideIdx;
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSelectSlide(idx)}
+                      className="group relative h-1.5 rounded-full bg-stone-700/80 overflow-hidden cursor-pointer"
+                      title={`स्लाइड ${idx + 1}: ${s.heading}`}
+                    >
+                      <div
+                        className={`h-full transition-all duration-300 rounded-full ${
+                          isCompleted
+                            ? 'bg-orange-500 w-full'
+                            : isCurrent
+                            ? isPlayingAudio
+                              ? 'bg-gradient-to-r from-orange-400 to-amber-300 w-full animate-pulse'
+                              : 'bg-orange-400 w-full'
+                            : 'w-0'
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Synchronized Photographic Slide Display */}
+              <div className="relative rounded-2xl overflow-hidden border border-stone-700 shadow-inner bg-black aspect-video sm:aspect-auto sm:h-56 mb-3 group">
+                <img
+                  key={currentSlide.imageUrl}
+                  src={currentSlide.imageUrl}
+                  alt={currentSlide.heading}
+                  className="w-full h-full object-cover transition-all duration-700 ease-out transform group-hover:scale-105"
+                  loading="eager"
+                />
+
+                {/* Slide Tag Badge Overlay */}
+                <div className="absolute top-2.5 left-2.5">
+                  <span className="bg-orange-600/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider">
+                    {currentSlide.tag}
+                  </span>
+                </div>
+
+                {/* Bottom Gradient Overlay with Slide Heading & Narration Excerpt */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/75 to-transparent p-3 sm:p-4 text-white">
+                  <p className="text-xs sm:text-sm font-black leading-snug drop-shadow-sm text-stone-100">
+                    {currentSlide.heading}
+                  </p>
+                  <p className="text-[11px] sm:text-xs text-stone-300 line-clamp-2 mt-0.5 font-medium leading-relaxed">
+                    {currentSlide.text}
+                  </p>
+                </div>
+              </div>
+
+              {/* Active Slide Teacher Script Preview */}
+              <div className="bg-stone-800/90 rounded-2xl p-3 border border-stone-700/80 mb-3.5">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>शिक्षक की बोलती आवाज (हिंदी विवरण):</span>
+                  </span>
+                  <span className="text-[10px] text-stone-400 font-medium">
+                    {currentSlide.durationSeconds} सेकंड
+                  </span>
+                </div>
+                <p className="text-xs text-stone-200 font-medium leading-relaxed">
+                  "{currentSlide.audioScript}"
                 </p>
+              </div>
+
+              {/* Playback & Slidecast Navigation Controls */}
+              <div className="space-y-3">
+                {/* Audio Progress Bar */}
+                <div className="w-full bg-stone-800 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-orange-500 to-amber-400 h-full transition-all duration-300 rounded-full"
+                    style={{ width: `${Math.max(5, audioProgress)}%` }}
+                  />
+                </div>
+
+                {/* Primary Control Buttons */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handlePrevSlide}
+                      disabled={currentSlideIdx === 0}
+                      className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center ${
+                        currentSlideIdx === 0
+                          ? 'border-stone-800 text-stone-600 cursor-not-allowed'
+                          : 'border-stone-700 text-stone-200 hover:bg-stone-800 active:scale-95'
+                      }`}
+                      title="पिछली स्लाइड"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      onClick={handleRestartSlidecast}
+                      className="p-2.5 rounded-xl border border-stone-700 text-stone-300 hover:bg-stone-800 active:scale-95 transition"
+                      title="शुरू से पुनः चलाएँ"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Main Play/Pause Button */}
+                  <button
+                    onClick={handleToggleSlidecast}
+                    className={`flex-1 py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-95 shadow-md ${
+                      isPlayingAudio
+                        ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/30 animate-pulse'
+                        : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-500/25'
+                    }`}
+                  >
+                    {isPlayingAudio ? (
+                      <>
+                        <Pause className="w-4 h-4 fill-white" />
+                        <span>आवाज़ रोकें (Pause)</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 fill-white" />
+                        <span>▶️ पाठ सुनें और सीखें (Play Slidecast)</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={handleNextSlide}
+                    disabled={currentSlideIdx === slidecastData.slides.length - 1}
+                    className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center ${
+                      currentSlideIdx === slidecastData.slides.length - 1
+                        ? 'border-stone-800 text-stone-600 cursor-not-allowed'
+                        : 'border-stone-700 text-stone-200 hover:bg-stone-800 active:scale-95'
+                    }`}
+                    title="अगली स्लाइड"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-stone-400 px-1 pt-1">
+                  <span>
+                    {isPlayingAudio
+                      ? `स्लाइड ${currentSlideIdx + 1} चल रही है... (${currentSlide.tag})`
+                      : 'ऑडियो के साथ 3 स्लाइड स्वतः बदलेंगी'}
+                  </span>
+                  <span className="font-bold text-amber-400">
+                    अवधारणा → उदाहरण → अनुप्रयोग
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* 2-4 Short Bullet Points on Screen */}
             <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 space-y-2 mb-4">
               <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
-                मुख्य बातें:
+                पाठ की मुख्य बातें:
               </span>
               {activeLesson.keyPoints.map((point, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs font-bold text-stone-800">
@@ -346,35 +676,6 @@ export default function LearnTabContent({ profile, selectedDomain }) {
                   <span>{point}</span>
                 </div>
               ))}
-            </div>
-
-            {/* Prominent Audio Teacher Narration Button */}
-            <div className="p-4 bg-orange-50/80 rounded-2xl border border-orange-200 mb-5 text-center">
-              <button
-                onClick={handleToggleAudio}
-                className={`w-full py-3.5 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition shadow-sm ${
-                  isPlayingAudio
-                    ? 'bg-red-600 text-white animate-pulse'
-                    : 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-orange-600/25 hover:shadow-md'
-                }`}
-              >
-                {isPlayingAudio ? (
-                  <>
-                    <Pause className="w-5 h-5 fill-white" />
-                    <span>शिक्षक की आवाज़ रोकें</span>
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="w-5 h-5" />
-                    <span>🔊 शिक्षक से पाठ समझें (बोलकर सुनें)</span>
-                  </>
-                )}
-              </button>
-              <p className="text-[11px] text-stone-600 mt-2 font-medium">
-                {isPlayingAudio
-                  ? 'शिक्षक पाठ को विस्तार और उदाहरण के साथ समझा रहे हैं...'
-                  : 'यह ऑडियो केवल लिखा हुआ नहीं पढ़ता, बल्कि शिक्षक की तरह विस्तार से समझाता है।'}
-              </p>
             </div>
 
             {/* Quick Knowledge Check ("मैंने समझा") */}

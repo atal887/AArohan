@@ -20,7 +20,12 @@ import {
   AlertCircle,
   HelpCircle,
   ShieldCheck,
-  Layers
+  Layers,
+  Users,
+  Share2,
+  Play,
+  X,
+  Check
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import {
@@ -28,6 +33,7 @@ import {
   HARDCODED_SCHOLARSHIPS,
   SCHOLARSHIP_APPLICATION_STEPS
 } from '../opportunitiesData';
+import { FAMILY_MODE_JOB_EXPLANATIONS } from '../familyModeData';
 
 export default function OpportunitiesTabContent({
   profile,
@@ -77,10 +83,54 @@ export default function OpportunitiesTabContent({
   // Audio speech player
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
+  // Family Mode Modal State for Jobs
+  const [activeFamilyJob, setActiveFamilyJob] = useState(null);
+  const [isPlayingFamilyAudio, setIsPlayingFamilyAudio] = useState(false);
+  const [copiedShareToast, setCopiedShareToast] = useState(false);
+
   // Current domain & mobility preferences from props / state
   const currentDomain = selectedDomain || 'आपूर्ति श्रृंखला प्रबंधन';
   const mobility = studentData?.canRelocate || 'हाँ, मैं बाहर जा सकता/सकती हूँ';
   const wantsNearbyOnly = mobility.includes('आस-पास') || mobility.includes('केवल') || mobility.includes('नहीं');
+
+  // Family Mode Audio toggle for Jobs (~45-55s audio)
+  const handleToggleFamilyJobAudio = (explanationText) => {
+    if ('speechSynthesis' in window) {
+      if (isPlayingFamilyAudio) {
+        window.speechSynthesis.cancel();
+        setIsPlayingFamilyAudio(false);
+      } else {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(explanationText);
+        utterance.lang = 'hi-IN';
+        utterance.rate = 0.9;
+        utterance.onend = () => setIsPlayingFamilyAudio(false);
+        utterance.onerror = () => setIsPlayingFamilyAudio(false);
+        window.speechSynthesis.speak(utterance);
+        setIsPlayingFamilyAudio(true);
+      }
+    }
+  };
+
+  // Simulated WhatsApp Share for Job
+  const handleWhatsAppJobShare = (messageText) => {
+    const encoded = encodeURI(messageText);
+    const whatsappUrl = `https://wa.me/?text=${encoded}`;
+    try {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(messageText);
+      }
+    } catch (e) {}
+    setCopiedShareToast(true);
+    setTimeout(() => setCopiedShareToast(false), 3000);
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const closeFamilyJobModal = () => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsPlayingFamilyAudio(false);
+    setActiveFamilyJob(null);
+  };
 
   // Filter and sort jobs based on student mobility preference
   // If student wants nearby: prioritize East Delhi / nearby locations
@@ -247,6 +297,26 @@ export default function OpportunitiesTabContent({
           <p className="text-xs text-emerald-950 font-bold leading-relaxed">
             "{selectedJob.fitReason}"
           </p>
+        </div>
+
+        {/* 🔊 परिवार को समझाएँ Button in Job Detail */}
+        <div className="p-3 bg-amber-50 rounded-2xl border border-amber-300 flex items-center justify-between gap-3 shadow-2xs">
+          <div>
+            <span className="font-black text-amber-950 text-xs block">
+              परिवार व माता-पिता को समझाएँ
+            </span>
+            <span className="text-[10px] text-amber-800 font-medium">
+              इस नौकरी का काम, वेतन, बचत और सुरक्षा सरल हिंदी में सुनाएँ
+            </span>
+          </div>
+
+          <button
+            onClick={() => setActiveFamilyJob(selectedJob)}
+            className="px-3.5 py-2 rounded-xl bg-amber-600 text-white font-black text-xs hover:bg-amber-700 active:scale-95 transition flex items-center gap-1.5 shrink-0 shadow-2xs cursor-pointer"
+          >
+            <Volume2 className="w-4 h-4" />
+            <span>🔊 परिवार को समझाएँ</span>
+          </button>
         </div>
 
         {/* Job Responsibilities */}
@@ -738,11 +808,22 @@ export default function OpportunitiesTabContent({
                     "{job.fitReason}"
                   </div>
 
+                  {/* 🔊 परिवार को समझाएँ Button on Card */}
+                  <div className="pt-1">
+                    <button
+                      onClick={() => setActiveFamilyJob(job)}
+                      className="w-full py-2 px-3 rounded-xl bg-amber-50 text-amber-950 border border-amber-300 font-bold text-xs hover:bg-amber-100 active:scale-95 transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                    >
+                      <Volume2 className="w-3.5 h-3.5 text-amber-700" />
+                      <span>🔊 परिवार को समझाएँ</span>
+                    </button>
+                  </div>
+
                   {/* Card Bottom Actions */}
                   <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-2">
                     <button
                       onClick={() => handleToggleSaveJob(job.id)}
-                      className="p-2 rounded-xl text-stone-500 hover:text-emerald-700 hover:bg-stone-100 transition"
+                      className="p-2 rounded-xl text-stone-500 hover:text-emerald-700 hover:bg-stone-100 transition cursor-pointer"
                       title="सहेजें"
                     >
                       {isSaved ? (
@@ -757,7 +838,7 @@ export default function OpportunitiesTabContent({
                         setSelectedJob(job);
                         setViewState('jobDetail');
                       }}
-                      className="flex-1 py-2 px-4 rounded-xl bg-emerald-700 text-white font-black text-xs shadow-xs hover:bg-emerald-800 active:scale-95 transition flex items-center justify-center gap-1.5"
+                      className="flex-1 py-2 px-4 rounded-xl bg-emerald-700 text-white font-black text-xs shadow-xs hover:bg-emerald-800 active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <span>विवरण देखें</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -889,6 +970,119 @@ export default function OpportunitiesTabContent({
           })}
         </div>
       </div>
+
+      {/* ================= FAMILY MODE MODAL FOR JOBS ================= */}
+      {activeFamilyJob && (() => {
+        const jobInfo = FAMILY_MODE_JOB_EXPLANATIONS[activeFamilyJob.id] || {
+          audioText: `नमस्ते अभिभावक जी। यह नौकरी '${activeFamilyJob.company}' में '${activeFamilyJob.title}' पद के लिए है। स्थान: ${activeFamilyJob.location}। मासिक वेतन ${activeFamilyJob.salary} है। यह काम आपके बच्चे के चुने हुए क्षेत्र के लिए बहुत सुरक्षित और सम्मानजनक है।`,
+          durationText: 'लगभग ४५ सेकंड',
+          whatsAppMessage: `नमस्ते! AAROHAN पर नौकरी का अवसर मिला है: ${activeFamilyJob.title} (${activeFamilyJob.company})। स्थान: ${activeFamilyJob.location}। वेतन: ${activeFamilyJob.salary}। परिवार को समझाने के लिए पूरी जानकारी यहाँ देखें।`
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+            <div className="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-amber-200 overflow-hidden my-auto max-h-[90vh] flex flex-col">
+              {/* Modal Top Header */}
+              <div className="p-4 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-amber-100" />
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider block text-amber-100">
+                      परिवार को समझाएँ
+                    </span>
+                    <h4 className="text-sm font-black text-white">
+                      {activeFamilyJob.title}
+                    </h4>
+                  </div>
+                </div>
+
+                <button
+                  onClick={closeFamilyJobModal}
+                  className="p-1 rounded-full text-white/80 hover:bg-white/20 transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-5 overflow-y-auto space-y-4 text-xs text-stone-800">
+                {/* Job Key Highlights */}
+                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-stone-600 font-bold">संस्था / कंपनी:</span>
+                    <span className="font-black text-stone-900">{activeFamilyJob.company}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-stone-600 font-bold">कार्यस्थल:</span>
+                    <span className="font-black text-stone-900">{activeFamilyJob.location}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-stone-600 font-bold">मासिक वेतन:</span>
+                    <span className="font-black text-amber-900">{activeFamilyJob.salary}</span>
+                  </div>
+                  {activeFamilyJob.financialEstimate && (
+                    <div className="flex justify-between items-center text-xs pt-1 border-t border-amber-200/70">
+                      <span className="text-emerald-900 font-bold">अनुमानित बचत:</span>
+                      <span className="font-black text-emerald-800">
+                        ₹{activeFamilyJob.financialEstimate.estimatedSavings} / माह
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Explanation text */}
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-stone-700 block">
+                    माता-पिता और परिवार के लिए ऑडियो संदेश ({jobInfo.durationText}):
+                  </span>
+                  <p className="text-[11px] text-stone-700 leading-relaxed italic bg-stone-50 p-3 rounded-2xl border border-stone-200">
+                    "{jobInfo.audioText}"
+                  </p>
+                </div>
+
+                {/* Action Buttons: ▶️ आवाज़ सुनें & 📤 WhatsApp पर साझा करें */}
+                <div className="space-y-2 pt-1">
+                  <button
+                    onClick={() => handleToggleFamilyJobAudio(jobInfo.audioText)}
+                    className={`w-full py-3 px-4 rounded-2xl font-black text-xs shadow-md flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer ${
+                      isPlayingFamilyAudio
+                        ? 'bg-red-600 text-white animate-pulse'
+                        : 'bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:brightness-105'
+                    }`}
+                  >
+                    {isPlayingFamilyAudio ? (
+                      <>
+                        <Square className="w-4 h-4 fill-white" />
+                        <span>ऑडियो रोकें</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 fill-white" />
+                        <span>▶️ आवाज़ सुनें (माता-पिता को सुनाएँ)</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handleWhatsAppJobShare(jobInfo.whatsAppMessage)}
+                    className="w-full py-3 px-4 rounded-2xl bg-emerald-700 text-white font-black text-xs shadow-md hover:bg-emerald-800 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>📤 WhatsApp पर साझा करें</span>
+                  </button>
+                </div>
+
+                {copiedShareToast && (
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-xl text-center text-[11px] font-bold flex items-center justify-center gap-1.5 animate-fadeIn">
+                    <Check className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>WhatsApp संदेश तैयार हो गया और कॉपी कर लिया गया!</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

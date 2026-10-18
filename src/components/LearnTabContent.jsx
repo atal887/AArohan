@@ -456,60 +456,30 @@ export default function LearnTabContent({ profile, selectedDomain }) {
             <span>सभी मॉड्यूल पर वापस जाएं</span>
           </button>
 
-          {/* Module & Lesson Tracker */}
-          <div className="bg-white rounded-3xl p-5 border-2 border-orange-200 shadow-md">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-black text-orange-800 bg-orange-100 px-3 py-1 rounded-full">
+          {/* Module & Lesson Tracker - Light & Calm */}
+          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-stone-200/80 shadow-xs">
+            {/* Minimal Header Breadcrumb */}
+            <div className="flex items-center justify-between text-xs text-stone-500 mb-3">
+              <span className="font-semibold text-stone-700">
                 मॉड्यूल {activeModule.moduleNumber}: {activeModule.title}
               </span>
-              <span className="text-xs font-bold text-stone-500">
+              <span className="font-medium text-stone-400">
                 पाठ {activeLesson.lessonNumber} / {activeModule.lessons.length}
               </span>
             </div>
 
-            {/* Lesson Progress Bar in current module */}
-            <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden mb-4">
-              <div
-                className="bg-gradient-to-r from-orange-500 to-amber-500 h-full transition-all duration-300"
-                style={{
-                  width: `${((activeLessonIdx + 1) / activeModule.lessons.length) * 100}%`,
-                }}
-              />
-            </div>
-
             {/* Lesson Title */}
-            <h3 className="text-lg font-black text-stone-900 leading-snug">
+            <h3 className="text-lg font-black text-stone-900 leading-snug tracking-tight">
               {activeLesson.title}
             </h3>
-            <p className="text-xs text-orange-700 font-semibold mt-0.5 mb-3">
+            <p className="text-xs text-stone-500 mt-0.5 mb-4 font-normal">
               {activeLesson.subtitle}
             </p>
 
-            {/* ================= SYNCHRONIZED SLIDECAST REEL PLAYER ================= */}
-            <div className="bg-stone-900 rounded-3xl p-4 sm:p-5 text-white shadow-xl border border-stone-800 mb-5">
-              {/* Slidecast Header & Mode Badge */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-2.5 w-2.5 relative">
-                    {isPlayingAudio && (
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                    )}
-                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isPlayingAudio ? 'bg-orange-500' : 'bg-stone-500'}`}></span>
-                  </span>
-                  <span className="text-xs font-black uppercase tracking-wider text-orange-400 flex items-center gap-1">
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>सक्रिय स्लाइडकास्ट</span>
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-xs font-bold text-stone-300 bg-stone-800 px-2.5 py-1 rounded-full border border-stone-700">
-                  <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
-                  <span>स्लाइड {currentSlideIdx + 1} / {slidecastData.slides.length}</span>
-                </div>
-              </div>
-
-              {/* Instagram/Reel-style Progress Segments for Slides */}
-              <div className="grid grid-cols-3 gap-1.5 mb-3.5">
+            {/* ================= LIGHT, STORY-LIKE SLIDECAST VIEWER ================= */}
+            <div className="space-y-4 mb-6">
+              {/* Story / Reel-Style Segmented Progress Indicators */}
+              <div className="grid grid-cols-3 gap-1.5">
                 {slidecastData.slides.map((s, idx) => {
                   const isCompleted = idx < currentSlideIdx;
                   const isCurrent = idx === currentSlideIdx;
@@ -518,17 +488,17 @@ export default function LearnTabContent({ profile, selectedDomain }) {
                       key={idx}
                       type="button"
                       onClick={() => handleSelectSlide(idx)}
-                      className="group relative h-1.5 rounded-full bg-stone-700/80 overflow-hidden cursor-pointer"
+                      className="h-1 rounded-full bg-stone-200 overflow-hidden cursor-pointer transition"
                       title={`स्लाइड ${idx + 1}: ${s.heading}`}
                     >
                       <div
                         className={`h-full transition-all duration-300 rounded-full ${
                           isCompleted
-                            ? 'bg-orange-500 w-full'
+                            ? 'bg-stone-800 w-full'
                             : isCurrent
                             ? isPlayingAudio
-                              ? 'bg-gradient-to-r from-orange-400 to-amber-300 w-full animate-pulse'
-                              : 'bg-orange-400 w-full'
+                              ? 'bg-stone-800 w-full animate-pulse'
+                              : 'bg-stone-700 w-full'
                             : 'w-0'
                         }`}
                       />
@@ -537,92 +507,77 @@ export default function LearnTabContent({ profile, selectedDomain }) {
                 })}
               </div>
 
-              {/* Synchronized Photographic Slide Display */}
-              <div className="relative rounded-2xl overflow-hidden border border-stone-700 shadow-inner bg-black aspect-video sm:aspect-auto sm:h-56 mb-3 group">
+              {/* Slide Counter & Tag - Minimal & Clean */}
+              <div className="flex items-center justify-between text-[11px] text-stone-500 px-0.5">
+                <span className="font-bold text-stone-700">
+                  {currentSlide.tag}
+                </span>
+                <span className="text-stone-400 font-medium">
+                  {currentSlideIdx + 1} / {slidecastData.slides.length}
+                </span>
+              </div>
+
+              {/* Main Visual Image - Hero Focus */}
+              <div className="relative rounded-2xl overflow-hidden bg-stone-100 aspect-16/10 sm:h-64 border border-stone-200/60 shadow-xs">
                 <img
                   key={currentSlide.imageUrl}
                   src={currentSlide.imageUrl}
                   alt={currentSlide.heading}
-                  className="w-full h-full object-cover transition-all duration-700 ease-out transform group-hover:scale-105"
+                  className="w-full h-full object-cover transition-opacity duration-500 ease-out"
                   loading="eager"
                 />
 
-                {/* Slide Tag Badge Overlay */}
-                <div className="absolute top-2.5 left-2.5">
-                  <span className="bg-orange-600/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider">
-                    {currentSlide.tag}
-                  </span>
-                </div>
-
-                {/* Bottom Gradient Overlay with Slide Heading & Narration Excerpt */}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/75 to-transparent p-3 sm:p-4 text-white">
-                  <p className="text-xs sm:text-sm font-black leading-snug drop-shadow-sm text-stone-100">
+                {/* Subtle, Minimal Gradient Vignette for Readability */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent p-3 sm:p-4 text-white">
+                  <p className="text-xs sm:text-sm font-bold text-white drop-shadow-xs">
                     {currentSlide.heading}
                   </p>
-                  <p className="text-[11px] sm:text-xs text-stone-300 line-clamp-2 mt-0.5 font-medium leading-relaxed">
-                    {currentSlide.text}
-                  </p>
                 </div>
               </div>
 
-              {/* Active Slide Teacher Script Preview */}
-              <div className="bg-stone-800/90 rounded-2xl p-3 border border-stone-700/80 mb-3.5">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
-                    <Volume2 className="w-3.5 h-3.5" />
-                    <span>शिक्षक की बोलती आवाज (हिंदी विवरण):</span>
-                  </span>
-                  <span className="text-[10px] text-stone-400 font-medium">
-                    {currentSlide.durationSeconds} सेकंड
-                  </span>
-                </div>
-                <p className="text-xs text-stone-200 font-medium leading-relaxed">
-                  "{currentSlide.audioScript}"
+              {/* Slide Narration Text - Clean, Calm Typography */}
+              <div className="py-1 px-0.5 space-y-1">
+                <p className="text-xs sm:text-sm text-stone-700 font-normal leading-relaxed">
+                  {currentSlide.text}
                 </p>
+                <div className="flex items-center gap-1.5 text-[11px] text-stone-500 italic pt-1">
+                  <Volume2 className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                  <span className="line-clamp-2 font-normal">"{currentSlide.audioScript}"</span>
+                </div>
               </div>
 
-              {/* Playback & Slidecast Navigation Controls */}
-              <div className="space-y-3">
-                {/* Audio Progress Bar */}
-                <div className="w-full bg-stone-800 h-1.5 rounded-full overflow-hidden">
+              {/* Essential & Compact Audio Controls */}
+              <div className="pt-2 border-t border-stone-100 space-y-3">
+                {/* Audio Duration Progress Line */}
+                <div className="w-full bg-stone-100 h-1 rounded-full overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-orange-500 to-amber-400 h-full transition-all duration-300 rounded-full"
+                    className="bg-stone-700 h-full transition-all duration-300 rounded-full"
                     style={{ width: `${Math.max(5, audioProgress)}%` }}
                   />
                 </div>
 
-                {/* Primary Control Buttons */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handlePrevSlide}
-                      disabled={currentSlideIdx === 0}
-                      className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center ${
-                        currentSlideIdx === 0
-                          ? 'border-stone-800 text-stone-600 cursor-not-allowed'
-                          : 'border-stone-700 text-stone-200 hover:bg-stone-800 active:scale-95'
-                      }`}
-                      title="पिछली स्लाइड"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
+                {/* Play/Pause, Prev, Next Buttons */}
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    onClick={handlePrevSlide}
+                    disabled={currentSlideIdx === 0}
+                    className={`p-2.5 rounded-full border text-xs transition flex items-center justify-center ${
+                      currentSlideIdx === 0
+                        ? 'border-stone-100 text-stone-300 cursor-not-allowed'
+                        : 'border-stone-200 text-stone-700 hover:bg-stone-100 active:scale-95'
+                    }`}
+                    title="पिछली स्लाइड"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
 
-                    <button
-                      onClick={handleRestartSlidecast}
-                      className="p-2.5 rounded-xl border border-stone-700 text-stone-300 hover:bg-stone-800 active:scale-95 transition"
-                      title="शुरू से पुनः चलाएँ"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Main Play/Pause Button */}
+                  {/* Primary Compact Play/Pause Button */}
                   <button
                     onClick={handleToggleSlidecast}
-                    className={`flex-1 py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-95 shadow-md ${
+                    className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95 ${
                       isPlayingAudio
-                        ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/30 animate-pulse'
-                        : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-500/25'
+                        ? 'bg-stone-800 text-white hover:bg-stone-900 shadow-xs'
+                        : 'bg-stone-900 text-white hover:bg-black shadow-xs'
                     }`}
                   >
                     {isPlayingAudio ? (
@@ -632,8 +587,8 @@ export default function LearnTabContent({ profile, selectedDomain }) {
                       </>
                     ) : (
                       <>
-                        <Play className="w-4 h-4 fill-white" />
-                        <span>▶️ पाठ सुनें और सीखें (Play Slidecast)</span>
+                        <Play className="w-4 h-4 fill-white ml-0.5" />
+                        <span>पाठ सुनें और देखें (Play)</span>
                       </>
                     )}
                   </button>
@@ -641,53 +596,50 @@ export default function LearnTabContent({ profile, selectedDomain }) {
                   <button
                     onClick={handleNextSlide}
                     disabled={currentSlideIdx === slidecastData.slides.length - 1}
-                    className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center ${
+                    className={`p-2.5 rounded-full border text-xs transition flex items-center justify-center ${
                       currentSlideIdx === slidecastData.slides.length - 1
-                        ? 'border-stone-800 text-stone-600 cursor-not-allowed'
-                        : 'border-stone-700 text-stone-200 hover:bg-stone-800 active:scale-95'
+                        ? 'border-stone-100 text-stone-300 cursor-not-allowed'
+                        : 'border-stone-200 text-stone-700 hover:bg-stone-100 active:scale-95'
                     }`}
                     title="अगली स्लाइड"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
-                </div>
 
-                <div className="flex items-center justify-between text-[11px] text-stone-400 px-1 pt-1">
-                  <span>
-                    {isPlayingAudio
-                      ? `स्लाइड ${currentSlideIdx + 1} चल रही है... (${currentSlide.tag})`
-                      : 'ऑडियो के साथ 3 स्लाइड स्वतः बदलेंगी'}
-                  </span>
-                  <span className="font-bold text-amber-400">
-                    अवधारणा → उदाहरण → अनुप्रयोग
-                  </span>
+                  <button
+                    onClick={handleRestartSlidecast}
+                    className="p-2.5 rounded-full border border-stone-200 text-stone-400 hover:text-stone-700 hover:bg-stone-100 active:scale-95 transition"
+                    title="पुनः चलाएँ"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* 2-4 Short Bullet Points on Screen */}
-            <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 space-y-2 mb-4">
-              <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
-                पाठ की मुख्य बातें:
+            {/* Key Takeaways - Minimalist & Uncluttered */}
+            <div className="py-3 px-3.5 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-1.5 mb-5">
+              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                मुख्य बातें:
               </span>
               {activeLesson.keyPoints.map((point, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs font-bold text-stone-800">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <div key={i} className="flex items-start gap-2 text-xs text-stone-800 font-medium">
+                  <span className="text-stone-400 mt-0.5">•</span>
                   <span>{point}</span>
                 </div>
               ))}
             </div>
 
-            {/* Quick Knowledge Check ("मैंने समझा") */}
-            <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200/90 mb-4">
-              <div className="flex items-center gap-1.5 mb-2">
-                <GraduationCap className="w-4 h-4 text-amber-700" />
-                <span className="text-xs font-black text-amber-900 uppercase tracking-wider">
-                  त्वरित समझ जाँच (मैंने समझा)
+            {/* Quick Knowledge Check ("मैंने समझा") - Calm & Integrated */}
+            <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200/80 mb-5">
+              <div className="flex items-center gap-1.5 mb-2.5">
+                <GraduationCap className="w-4 h-4 text-stone-600" />
+                <span className="text-[11px] font-bold text-stone-700 uppercase tracking-wider">
+                  त्वरित समझ जाँच
                 </span>
               </div>
 
-              <p className="text-xs font-bold text-stone-900 mb-3">
+              <p className="text-xs font-bold text-stone-900 mb-3 leading-snug">
                 {activeLesson.knowledgeCheck.question}
               </p>
 
@@ -701,21 +653,21 @@ export default function LearnTabContent({ profile, selectedDomain }) {
                       key={idx}
                       type="button"
                       onClick={() => handleSelectOption(idx)}
-                      className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition flex items-center justify-between ${
+                      className={`w-full p-2.5 rounded-xl border text-left text-xs font-medium transition flex items-center justify-between ${
                         isAnswerSubmitted
                           ? isCorrect
-                            ? 'bg-emerald-100 border-emerald-400 text-emerald-900'
+                            ? 'bg-emerald-50 border-emerald-400 text-emerald-950 font-bold'
                             : isSelected
-                            ? 'bg-red-100 border-red-300 text-red-900'
-                            : 'bg-white border-stone-200 text-stone-600'
+                            ? 'bg-red-50 border-red-300 text-red-900'
+                            : 'bg-white border-stone-200 text-stone-500'
                           : isSelected
-                          ? 'bg-orange-100 border-orange-400 text-orange-950'
-                          : 'bg-white border-stone-200 text-stone-800 hover:border-orange-200'
+                          ? 'bg-stone-100 border-stone-400 text-stone-900 font-bold'
+                          : 'bg-white border-stone-200 text-stone-700 hover:border-stone-300'
                       }`}
                     >
                       <span>{opt}</span>
                       {isAnswerSubmitted && isCorrect && (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       )}
                     </button>
                   );
@@ -726,31 +678,31 @@ export default function LearnTabContent({ profile, selectedDomain }) {
                 <button
                   onClick={handleSubmitAnswer}
                   disabled={selectedAnswer === null}
-                  className={`w-full py-2.5 rounded-xl font-black text-xs transition ${
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs transition ${
                     selectedAnswer === null
                       ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                      : 'bg-amber-600 text-white shadow-xs hover:bg-amber-700 active:scale-95'
+                      : 'bg-stone-900 text-white hover:bg-black active:scale-95'
                   }`}
                 >
                   उत्तर जाँचें
                 </button>
               ) : (
-                <div className="p-2.5 bg-white rounded-xl border border-amber-200 text-xs font-medium text-stone-700">
+                <div className="p-2.5 bg-white rounded-xl border border-stone-200 text-xs font-normal text-stone-700 leading-relaxed">
                   <span className="font-bold text-stone-900 block mb-0.5">व्याख्या:</span>
                   {activeLesson.knowledgeCheck.explanation}
                 </div>
               )}
             </div>
 
-            {/* Previous / Next Controls */}
-            <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+            {/* Lesson Navigation (Previous / Next) */}
+            <div className="flex items-center justify-between pt-3 border-t border-stone-100">
               <button
                 onClick={handlePrevLesson}
                 disabled={activeLessonIdx === 0}
-                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition ${
+                className={`px-3 py-2 rounded-xl font-medium text-xs flex items-center gap-1.5 transition ${
                   activeLessonIdx === 0
-                    ? 'bg-stone-100 text-stone-400 cursor-not-allowed'
-                    : 'bg-stone-200 text-stone-800 hover:bg-stone-300 active:scale-95'
+                    ? 'text-stone-300 cursor-not-allowed'
+                    : 'text-stone-700 hover:bg-stone-100 active:scale-95'
                 }`}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -759,7 +711,7 @@ export default function LearnTabContent({ profile, selectedDomain }) {
 
               <button
                 onClick={handleNextLesson}
-                className="px-4 py-2.5 rounded-xl bg-orange-600 text-white font-black text-xs hover:bg-orange-700 shadow-md shadow-orange-600/25 active:scale-95 transition flex items-center gap-1.5"
+                className="px-4 py-2.5 rounded-xl bg-stone-900 text-white font-bold text-xs hover:bg-black active:scale-95 transition flex items-center gap-1.5 shadow-xs"
               >
                 <span>
                   {activeLessonIdx < activeModule.lessons.length - 1
